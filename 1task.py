@@ -4,55 +4,34 @@
 # Найти в каждом предложении слово максимальной длины и построить список таких слов.
 
 this_text = "Привет меня зовут Катя.Я живу во Владивостоке.Слушаю музыку.Слушаю музыку.Люблю смотреть сериалы."
-# Построить список предложений.(возвращает список предложений)
-def split_text(txt):
-    sentences = txt.split('.')
+text = "Привет меня зовут."
+
+# считает слова в предложение
+def count_words(text,count = 0,i = 0):
+    if(text[i] == "."):
+        count = count + 1
+    else:
+        if(text[i] == " "):
+            count = count_words(text, count + 1, i + 1)
+        else:
+            count = count_words(text, count, i + 1)
+    return count
     
-    return sentences
+print(count_words(text, 0, 0))
 
-# Для каждого предложения посчитать количество слов (слова отделяются пробелом).(возвращает  список списков состоящих из предложения и количества слов в нем)
-def words_num(sentences):
-    numbers = [] 
-    for k in sentences:
-        i = k.split(' ')
-        j = len(i)
-        if(i[j-1] != ''):
-            numbers.append([j,k])
-    return numbers
+def make_text(text, start, end):
+    if(end >= len(text)):
+        return []
+    else:
+        if(text[end] == "."):
+            d = {}
+            b = []
+            d = dict([(text[start:(end+1)], count_words(text[start:(end+1)],0,0))])
+            d.update(make_text(text, end + 1, end + 2))
+            return d
+        else:
+            if(text[end] != "."):
+                return make_text(text, start, end + 1)
 
-# Найти предложение, число слов в котором наибольшее.(возвращает пару: предложение и число слов в нем)
-def max_sent(numbers):
-    num = 0
-    main_sent = []
-    for k in numbers:
-        if(k[0] > num):
-            num = k[0]
-            main_sent = k
-    return main_sent
 
-# Найти в каждом предложении слово максимальной длины и построить список таких слов.(возвращает список слов)
-def max_word(sentences):
-    max_words = []
-    for k in sentences:
-        i = k.split(' ')
-        word = ''
-        l = 0
-        for el in i:
-            if(len(el) > l):
-                l = len(el)
-                word = el
-        max_words.append(word)
-    return max_words
-
-def main(text):
-    sentences = split_text(text)
-    print ("список предложений ", sentences)
-    wn = words_num(sentences)
-    print ("список предложений и количества слов каждого предложения ", wn)
-    ms = max_sent(wn)
-    print ("самое длинное предложение ", ms)
-    mw = max_word(sentences)
-    print ("список самых длинных слов ", mw)
-    
-
-main(this_text)
+print(make_text(this_text,0,0))
