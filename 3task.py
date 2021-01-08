@@ -1,52 +1,63 @@
-# В игре участвуют два игрока. Множество карт игрока представлено списком.
-# Элемент списка имеет следующую структуру: название масти, название карты. 
-# Также задан второй список, в котором каждой карте колоды сопоставляется «стоимость» - некоторое число. 
-# Написать функцию, которая по всем картам заданной масти определяет, у кого из игроков стоимость карт этой масти максимальная.
-# Написать функцию, которая определяет, какие карты остались в колоде.
-player1 = [["черви", "1"],["черви", "2"],["бубн", "дама"]]
-player2 = [["бубн", "1"],["крести", "2"],["пики", "4"]]
-cost = [["черви", "1", 1],["черви", "2", 2],["черви", "3", 3],["черви", "4", 4],["черви", "валет", 10],["черви", "дама", 20],["черви", "туз", 10 ],
-["пики", "1", 1],["пики", "2", 2],["пики", "3", 3],["пики", "4", 4],["пики", "валет", 10],["пики", "дама", 20],["пики", "туз", 10 ],
-["крести", "1", 1],["крести", "2", 2],["крести", "3", 3],["крести", "4", 4],["крести", "валет", 10],["крести", "дама", 20],["крести", "туз", 10 ],
-["бубн", "1", 1],["бубн", "2", 2],["бубн", "3", 3],["бубн", "4", 4],["бубн", "бубн", 10],["бубн", "дама", 20],["бубн", "туз", 10 ]]
+; В игре участвуют два игрока. Множество карт игрока представлено списком.
+; Элемент списка имеет следующую структуру: название масти, название карты. 
+; Также задан второй список, в котором каждой карте колоды сопоставляется «стоимость» - некоторое число. 
+; Написать функцию, которая по всем картам заданной масти определяет, у кого из игроков стоимость карт этой масти максимальная.
+; Написать функцию, которая определяет, какие карты остались в колоде.
 
-# Написать функцию, которая по всем картам заданной масти определяет, у кого из игроков стоимость карт этой масти максимальная.
+(setq cards '((1 "Six") (2 "Six") (3 "Six") (4 "Six") (1 "Seven") (2 "Seven") (3 "Seven") (4 "Seven") (1 "Eight") (2 "Eight") (3 "Eight") (4 "Eight") (1 "Nine") (2 "Nine") (3 "Nine") (4 "Nine") (1 "Ten") (2 "Ten") (3 "Ten") (4 "Ten") (1 "B") (2 "B") (3 "B") (4 "B") (1 "Q") (2 "Q") (3 "Q") (4 "Q") (1 "K") (2 "K") (3 "K") (4 "K") (1 "A") (2 "A") (3 "A") (4 "A")))
+(setq point '(("Six" 6) ("Seven" 7) ("Eight" 8) ("Nine" 9) ("Ten" 10) ("B" 11) ("Q" 12) ("K" 13) ("A" 14)))
+(setq pl1 '((1 "Ten") (2 "Six") (3 "K") (1 "B") (4 "B") (4 "Nine")))
+(setq pl2 '((2 "Eight") (4 "A") (1 "Seven") (4 "Six")))
 
-def defCost(card):
-    for c in cost:
-        if(c[0] == card[0] and c[1] == card[1]):
-            return c[2]
-            
-def MaxCost(pl1, pl2, mast):
-    sum1 = 0
-    sum2 = 0
-    for card in pl1:
-        if(card[0] == mast):
-            sum1 = sum1 + defCost(card)
-    for card in pl2:
-        if(card[0] == mast):
-            sum2 = sum2 + defCost(card)       
-    if(sum1 >= sum2 ):
-        return "1 player"
-    else: return "2 player"
-    
-# Написать функцию, которая определяет, какие карты остались в колоде.
-def Last(pl1, pl2):
-    lst = []
-    for card in cost:
-        for card1 in pl1:
-            if(card1[0] != card[0] and card1[1] != card[1]):
-                lst.append(card)
-                
-    for card in lst:
-        for card2 in pl2:
-            if(card2[0] == card[0] and card2[1] == card[1]):
-                lst.remove(card)
-    return lst
-    
-    
-def main():
-    print(MaxCost(player1, player2, "пики"))
-    print(Last(player1, player2))
+(defun get_num (player num)
+(cond
+    ((NULL player) NIL)
+    ((eq num (CAAR player)) (cons (CAR player) (get_num (CDR player) num)))
+    (T (get_num (CDR player) num))
+)
+)
+(defun get_point (pCart point)
+(cond
+    ((string-equal pCart (CAAR point)) (CADAR point))
+    (T (get_point pCart (CDR point)))
+)
+)
 
-main()
+(defun score (player)
+(cond 
+    ((NULL player) 0)
+    (T (+ (get_point (CADAR player) point) (score (CDR player))))
+)
+)
+(defun winner (p1 p2 num)
+(cond
+    ((> (score (get_num p1 num)) (score (get_num p2 num))) (list "Won player 1" (score (get_num p1 num))))
+    ((> (score (get_num p2 num)) (score (get_num p1 num))) (list "Won player 2" (score (get_num p2 num))))
+    (T (list "None win" (score (get_num p1 num))))
+)
+)
+ 
+(print(winner pl1 pl2 4))
+
+(defun on_hand(cart on)
+(cond
+    ((NULL on) NIL)
+    ((equal cart (CAR on)) T)
+    (T (on_hand cart (CDR on)))
+)
+)
+
+(defun stayed (cart on)
+(cond
+    ((NULL cart) NIL)
+    ((eq NIL (on_hand (CAR cart) on)) (cons (CAR cart) (stayed (CDR cart) on)))
+    (T (stayed (CDR cart) on))
+)
+)
+
+(print(winner pl1 pl2 1))
+(print(winner pl1 pl2 2))
+
+(print(winner pl1 pl2 3))
+(print(stayed cards (append pl1 pl2)))
+
